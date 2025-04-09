@@ -1,3 +1,3 @@
-../src/cgol.sv
+../src/cgol.v
 ../src/cgol_tb.sv
 
