@@ -37,7 +37,7 @@ You must implement the `des` module which simulates the Game of Life. Your modul
   - `gstep`: Advance one generation – when high for one cycle, the grid updates to the next state
 
 - **Output:**
-  - `dout`: Data output when `din_rd` is asserted (with one-cycle latency)
+  - `dout`: Data output
 
 The grid size is determined by the parameters:
 - `parameter N`: Number of rows
