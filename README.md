@@ -85,6 +85,7 @@ xrun -f ../src/cgol.f -gui -debug
   - A brief description of your design.
   - Your implementation of the `des` module.
   - The synthesis report.
+- Add the .tgz file that was generated during synthesis
 
 ---
 
