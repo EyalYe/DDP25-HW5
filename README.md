@@ -54,7 +54,7 @@ You may assume both `N` and `M` are no larger than 32.
 
 A complete SystemVerilog testbench is provided.
 
-You can run the testbench using the following command from runspace directory:
+You can run the testbench using the following command from **runspace** directory:
 
 ```bash
 xrun -f ../src/cgol.f
@@ -75,6 +75,7 @@ xrun -f ../src/cgol.f -gui -debug
 - Use a temporary grid to compute the next generation before updating the main grid.
 - Think about which signal has priority when multiple signals are asserted at the same time (e.g., `din_wr` vs. `gstep`).
 - Does `dout` output is valid only when `din_rd` is asserted?
+- Make your life easier and run the testbench in **runspace** directory.
 
 ---
 

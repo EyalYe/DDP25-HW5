@@ -13,7 +13,7 @@ module des #(
     input  din_wr,                // write grid pixel on/off data
     input  din_rd,                // read grid pixel on/off data 
     input  gstep,                 // perform a 'generation' step (override din_wr in case simultaneous)
-    output logic dout             // current grid read 'pixel' on/of value 9should be provide a cycle after fin_rd.
+    output reg dout             // current grid read 'pixel' on/of value 9should be provide a cycle after fin_rd.
     );
 
     // Your code here
