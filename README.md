@@ -89,4 +89,3 @@ xrun -f ../src/cgol.f -gui -debug
 ---
 
 ## GOOD LUCK!
-```
