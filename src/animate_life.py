@@ -32,6 +32,7 @@ def read_generation_file(filename):
 
 def display_board(board, prev_board=None):
     if not colorama_available:
+        os.system('cls' if os.name == 'nt' else 'clear')
         for row in board:
             line = ''.join('█' if cell == '1' else ' ' for cell in row)
             print(line)
