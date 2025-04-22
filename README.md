@@ -90,3 +90,9 @@ xrun -f ../src/cgol.f -gui -debug
 ---
 
 ## GOOD LUCK!
+
+---
+
+TODO:
+- change module name to cgol
+- add ready signal to allow more than 1 cycle per operation
