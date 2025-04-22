@@ -96,3 +96,5 @@ xrun -f ../src/cgol.f -gui -debug
 TODO:
 - change module name to cgol
 - add ready signal to allow more than 1 cycle per operation
+- make run instructions clear
+- fix animate life
