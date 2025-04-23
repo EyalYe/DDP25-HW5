@@ -1,4 +1,3 @@
-
 # HW5 – Conway’s Game of Life (CGOL)
 
 ## 🧠 Overview
@@ -38,6 +37,7 @@ You must implement the `des` module which simulates the Game of Life. Your modul
 
 - **Output:**
   - `dout`: Data output
+  - `done`: Indicates that the operation is complete (read/write/generation step, high for one cycle)
 
 The grid size is determined by the parameters:
 - `parameter N`: Number of rows
@@ -47,7 +47,10 @@ You may assume both `N` and `M` are no larger than 32.
 
 **Note**: The grid is **not** circular. Cells on the edges have fewer than 8 neighbors, and out-of-bounds accesses should be treated as dead cells (0). 
 
-**Important**: All operations must be done in a single clock cycle. i.e., raising din_wr or gstep must not take multiple cycles to complete.
+*** The `done` signal should be asserted for one clock cycle after a read/write operation or a generation step.
+
+*** Any input signal will be high for one clock cycle. You should not assume that the input signals will be stable for more than one clock cycle.
+
 ---
 
 ## 🧪 Testing
@@ -56,7 +59,28 @@ A complete SystemVerilog testbench is provided.
 
 You can run the testbench using the following command from **runspace** directory:
 
+Load the environment:
+
 ```bash
+tsmc65
+```
+
+Then, clone the repository:
+
+```bash
+git clone https://github.com/EyalYe/DDP25-HW6.git
+```
+Then, change to the **DDP25-HW6** directory. Here you can open VSCode or any other editor of your choice.
+
+```bash
+cd DDP25-HW6
+code .
+```
+
+change to the **runspace** directory and run the testbench:
+
+```bash
+cd runspace
 xrun -f ../src/cgol.f
 ```
 
@@ -93,8 +117,3 @@ xrun -f ../src/cgol.f -gui -debug
 
 ---
 
-TODO:
-- change module name to cgol
-- add ready signal to allow more than 1 cycle per operation
-- make run instructions clear
-- fix animate life

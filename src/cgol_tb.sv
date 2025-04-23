@@ -7,7 +7,7 @@
 parameter ID = 123456789 + 123456789; // Your ID here
 
 // --------------------------------------------------------------------------
-// Testbench Utility Interface and Driver
+// Interface Definition
 // --------------------------------------------------------------------------
 
 interface _if #(
@@ -25,18 +25,22 @@ interface _if #(
   logic din_rd;
   logic gstep;
   logic dout;
+  logic done;
 
   modport DUT (
     input clk, rst_n, row_idx, col_idx, din, din_wr, din_rd, gstep,
-    output dout
+    output dout,done 
   );
 
   modport TB (
     output clk, rst_n, row_idx, col_idx, din, din_wr, din_rd, gstep,
-    input dout
+    input dout,done 
   );
 endinterface
 
+// --------------------------------------------------------------------------
+// Driver Class
+// --------------------------------------------------------------------------
 
 class driver #(
   parameter N = 3,
@@ -55,13 +59,18 @@ class driver #(
     @(posedge vif.clk);
   endtask
 
+  task wait_ready();
+    @(posedge vif.clk);
+    while (!vif.done) @(posedge vif.clk);
+  endtask
+
   task write_cell(input [7:0] row, input [7:0] col, input bit val);
     vif.row_idx <= row;
     vif.col_idx <= col;
     vif.din <= val;
     vif.din_wr <= 1;
     vif.gstep <= 0;
-    @(negedge vif.clk);
+    wait_ready();
     vif.din_wr <= 0;
   endtask
 
@@ -69,14 +78,14 @@ class driver #(
     vif.row_idx <= row;
     vif.col_idx <= col;
     vif.din_rd <= 1;
-    @(negedge vif.clk);
-    vif.din_rd <= 0;
+    wait_ready();
     val = vif.dout;
+    vif.din_rd <= 0;
   endtask
 
   task generation_step();
     vif.gstep <= 1;
-    @(posedge vif.clk);
+    wait_ready();
     vif.gstep <= 0;
   endtask
 
@@ -89,7 +98,7 @@ class driver #(
     string cmd;
 
     $display("Generating pattern using Python...");
-    cmd = $sformatf("python3 ../src/cgol_gen_and_check.py %0d %0d %0d %0d", N, M, ID, 0); // Corrected: N before M
+    cmd = $sformatf("python3 ../src/cgol_gen_and_check.py %0d %0d %0d %0d", N, M, ID, 0);
     void'($system(cmd));
 
     $display("Loading pattern from pattern.txt...");
@@ -140,7 +149,6 @@ class driver #(
 
     $fclose(file);
 
-    // Call Python to check correctness
     cmd = $sformatf("python3 ../src/cgol_gen_and_check.py --check %0d %0d %0d %0d", N, M, ID, generation_count);
     result = $system(cmd);
     if (result != 0) begin
@@ -161,32 +169,30 @@ class driver #(
     end 
 
     $fclose(file);
-
   endtask
 endclass
 
+// --------------------------------------------------------------------------
+// Top-Level Testbench
+// --------------------------------------------------------------------------
 
-// --------------------------------------------------------------------------
-// Testbench Top Module
-// --------------------------------------------------------------------------
 module cgol_tb;
 
-  // Parameters that define the size of the grid
-  parameter N = (ID % 9) + 24; // 24 to 32
-  parameter M = ((ID / 4) % 9) + 24; // 24 to 32
+  parameter N = (ID % 9) + 24;
+  parameter M = ((ID / 4) % 9) + 24;
 
-  logic val;
   logic clk;
   logic rst_n;
+  logic done;
 
   integer generation_count = 0;
 
   driver #(N, M) d0;
-
   _if #(N, M) cgol_if();
 
   assign cgol_if.clk = clk;
   assign cgol_if.rst_n = rst_n;
+  assign cgol_if.done= done;
 
   initial begin
     clk = 0;
@@ -197,8 +203,8 @@ module cgol_tb;
     $display("Conway's Game of Life Testbench");
 
     d0 = new(cgol_if);
+    d0.reset();
 
-    // Load the initial pattern
     d0.load_pattern();
 
     for (int i = 0; i < 50; i++) begin
@@ -207,7 +213,6 @@ module cgol_tb;
       d0.export_and_check(generation_count);
     end
 
-    // Finishing the simulation
     $display("\n\n\n--------------------------------");
     $display("Simulation finished successfully.");
     $display("All tests passed.");
@@ -219,9 +224,9 @@ module cgol_tb;
     $finish;
   end
 
-  always #5 clk = !clk; // Clock period of 10 time units
+  always #5 clk = !clk;
 
-  des #(
+  cgol #(
     .N(N),
     .M(M)
   ) dut (
@@ -233,8 +238,8 @@ module cgol_tb;
     .din_wr(cgol_if.din_wr),
     .din_rd(cgol_if.din_rd),
     .gstep(cgol_if.gstep),
-    .dout(cgol_if.dout)
+    .dout(cgol_if.dout),
+    .done(done)
   );
 
 endmodule
-// written by: Eyal Yemini 2025

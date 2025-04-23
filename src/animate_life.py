@@ -1,27 +1,33 @@
 import os
 import sys
-import time
 import argparse
 import subprocess
 
-def try_import_colorama():
-    try:
-        from colorama import init, deinit, Fore, Cursor
-        init()
-        return True, init, deinit, Fore, Cursor
-    except ImportError:
-        print("colorama is not installed. Attempting to install...")
-        try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
-            from colorama import init, deinit, Fore, Cursor
-            init()
-            return True, init, deinit, Fore, Cursor
-        except Exception as e:
-            print("Failed to install colorama. Continuing without color/animations.")
-            return False, None, None, None, None
+CELL_SIZE = 20
+PADDING = 2
+LIVE_COLOR = (0, 255, 0)
+DEAD_COLOR = (30, 30, 30)
+BG_COLOR = (10, 10, 10)
+BUTTON_COLOR = (50, 50, 50)
+BUTTON_HOVER = (80, 80, 80)
+TEXT_COLOR = (200, 200, 200)
 
-# Try to import or install colorama
-colorama_available, init_func, deinit_func, Fore, Cursor = try_import_colorama()
+def try_import_pygame():
+    try:
+        import pygame
+        return True, pygame
+    except ImportError:
+        print("pygame not found. Attempting to install...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "pygame"])
+            import pygame
+            return True, pygame
+        except Exception as e:
+            print("Failed to install pygame:", e)
+            return False, None
+
+# Try to import pygame
+pygame_available, pygame = try_import_pygame()
 
 def read_generation_file(filename):
     try:
@@ -30,52 +36,98 @@ def read_generation_file(filename):
     except FileNotFoundError:
         return None
 
-def display_board(board, prev_board=None):
-    if not colorama_available:
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for row in board:
-            line = ''.join('█' if cell == '1' else ' ' for cell in row)
-            print(line)
+def draw_board(screen, board, pygame):
+    screen.fill(BG_COLOR)
+    for y, row in enumerate(board):
+        for x, cell in enumerate(row):
+            color = LIVE_COLOR if cell == '1' else DEAD_COLOR
+            rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE - PADDING, CELL_SIZE - PADDING)
+            pygame.draw.rect(screen, color, rect)
+    pygame.display.flip()
+
+def draw_replay_button(screen, font, pygame, cols, rows):
+    width, height = 200, 60
+    x = (cols * CELL_SIZE - width) // 2
+    y = (rows * CELL_SIZE - height) // 2
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+
+    hovered = x < mouse[0] < x + width and y < mouse[1] < y + height
+    color = BUTTON_HOVER if hovered else BUTTON_COLOR
+    pygame.draw.rect(screen, color, (x, y, width, height), border_radius=10)
+
+    text = font.render("Replay", True, TEXT_COLOR)
+    text_rect = text.get_rect(center=(x + width // 2, y + height // 2))
+    screen.blit(text, text_rect)
+    pygame.display.flip()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            return False
+        if hovered and click[0]:
+            return True
+    return None
+
+def animate_generations(directory, delay):
+    if not pygame_available:
+        print("pygame not available.")
         return
 
+    pygame.init()
+    font = pygame.font.SysFont(None, 36)
+
+    # Get initial board to determine size
+    board = read_generation_file(os.path.join(directory, "generation_0.txt"))
+    if not board:
+        print("No generation_0.txt found.")
+        return
     rows, cols = len(board), len(board[0])
-    for r in range(rows):
-        for c in range(cols):
-            cell = board[r][c]
-            if prev_board is None or prev_board[r][c] != cell:
-                char = Fore.GREEN + '█' if cell == '1' else Fore.LIGHTBLACK_EX + '.'
-                sys.stdout.write(Cursor.POS(c * 2 + 1, r + 1))
-                sys.stdout.write(char)
-    sys.stdout.flush()
+    screen = pygame.display.set_mode((cols * CELL_SIZE, rows * CELL_SIZE))
+    pygame.display.set_caption("Conway's Game of Life Animation")
 
-def animate_generations(directory, delay=0.3):
-    generation = 0
-    prev_board = None
+    clock = pygame.time.Clock()
+    running = True
 
-    if colorama_available:
-        print('\033[?25l', end='')  # Hide cursor
-        sys.stdout.write(Cursor.POS(1, 1))
+    while running:
+        generation = 0
+        prev_board = None
+        while True:
+            path = os.path.join(directory, f"generation_{generation}.txt")
+            board = read_generation_file(path)
+            if not board:
+                break
+            draw_board(screen, board, pygame)
+            generation += 1
+            clock.tick(1 / delay)
 
-    while True:
-        filename = os.path.join(directory, f'generation_{generation}.txt')
-        board = read_generation_file(filename)
-        if board is None:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    break
+            if not running:
+                break
+
+        if not running:
             break
-        display_board(board, prev_board)
-        prev_board = board
-        time.sleep(delay)
-        generation += 1
 
-    if colorama_available:
-        print('\033[?25h', end='')  # Show cursor
-        sys.stdout.write(Cursor.POS(1, len(prev_board) + 2))
-        deinit_func()
+        # Show replay button
+        waiting = True
+        while waiting:
+            screen.fill(BG_COLOR)
+            draw_replay_button(screen, font, pygame, cols, rows)
+            result = draw_replay_button(screen, font, pygame, cols, rows)
+            if result is False:
+                running = False
+                waiting = False
+            elif result is True:
+                waiting = False
+
+    pygame.quit()
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Animate Game of Life generations in the terminal.")
+    parser = argparse.ArgumentParser(description="Animate Game of Life generations with replay support.")
     parser.add_argument('--dir', type=str, default='.', help='Directory containing generation_*.txt files')
-    parser.add_argument('--delay', type=float, default=0.3, help='Delay between frames (in seconds)')
+    parser.add_argument('--delay', type=float, default=0.3, help='Delay between frames in seconds')
     args = parser.parse_args()
-    os.system('cls' if os.name == 'nt' else 'clear')
 
     animate_generations(args.dir, args.delay)

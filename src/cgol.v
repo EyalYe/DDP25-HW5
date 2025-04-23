@@ -1,6 +1,6 @@
 `timescale 1ns / 10ps
 
-module des #(
+module cgol #(
     // Grid size (N x M)
     parameter N = 32,             // Num rows
     parameter M = 32            // Num Columns
@@ -14,6 +14,7 @@ module des #(
     input  din_rd,                // read grid pixel on/off data 
     input  gstep,                 // perform a 'generation' step (override din_wr in case simultaneous)
     output reg dout             // current grid read 'pixel' on/of value 9should be provide a cycle after fin_rd.
+    output reg done,           // data ready signal
     );
 
     // Your code here
