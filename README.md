@@ -47,9 +47,9 @@ You may assume both `N` and `M` are no larger than 32.
 
 **Note**: The grid is **not** circular. Cells on the edges have fewer than 8 neighbors, and out-of-bounds accesses should be treated as dead cells (0). 
 
-*** The `done` signal should be asserted for one clock cycle after a read/write operation or a generation step.
+*** The `done` signal should be asserted for one clock cycle after a read/write operation or a generation step. ***
 
-*** Any input signal will be high for one clock cycle. You should not assume that the input signals will be stable for more than one clock cycle.
+*** Any input signal will be high for one clock cycle. You should not assume that the input signals will be stable for more than one clock cycle. ***
 
 ---
 
