@@ -190,6 +190,8 @@ module cgol_tb;
     $display("python3 ../src/scripts/animate_life.py --dir=./generations --delay=0.1");
     $display("--------------------------------\n\n\n");
 
+    $finish
+
   end
 
   // Clock generator
