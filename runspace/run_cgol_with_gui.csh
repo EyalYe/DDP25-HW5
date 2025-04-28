@@ -1,1 +1,1 @@
-xrun -f ../src/cgol.f -debug -gui
+xrun -f ../src/cgol.f -debug -gui -sv
