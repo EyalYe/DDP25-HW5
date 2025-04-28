@@ -6,7 +6,7 @@ This guide explains how to properly instantiate, connect, and use the interface 
 
 ---
 
-## 1. Interface Definition (`src/_if.sv`)
+## 1. Interface Definition (`src/rtl/_if.sv`)
 
 ```systemverilog
 interface _if #(parameter N = 3, parameter M = 256) ();
@@ -35,7 +35,7 @@ endinterface
 
 ---
 
-## 2. Instantiate the Interface in the Testbench (`runspace/cgol_tb.sv`)
+## 2. Instantiate the Interface in the Testbench (`src/tb/cgol_tb.sv`)
 
 ```systemverilog
 _if #(N, M) cgol_if();
