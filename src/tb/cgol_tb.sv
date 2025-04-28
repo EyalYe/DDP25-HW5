@@ -157,8 +157,6 @@ module cgol_tb;
   _if #(N, M) cgol_if();
   driver #(N, M) d0;
 
-  assign cgol_if.done = done;
-
   initial begin
     clk = 1;
     rst_n = 0;
