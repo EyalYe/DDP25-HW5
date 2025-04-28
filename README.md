@@ -6,6 +6,8 @@ In this assignment, you will implement the **core logic module** for **Conway’
 
 The grid is parameterized, and your module must support reading/writing individual cells, as well as advancing the simulation by one generation step.
 
+You will also learn how to use a **SystemVerilog interface** to group control and data signals, while keeping the clock and reset signals separate as explicit module ports.
+
 ---
 
 ## 📏 Rules of the Game
@@ -23,33 +25,56 @@ All updates happen **simultaneously** at each generation step.
 
 ## 🧩 Your Task
 
-You must implement the `des` module which simulates the Game of Life. Your module should support the following interface signals:
+You must implement the `cgol` module, which simulates the Game of Life.
+
+Your module must use the provided interface `_if`, and its port list must include:
+
+- Explicit inputs:
+  - `clk`: Clock signal
+  - `rst_n`: Active-low reset signal
+
+- Interface port:
+  - `_if.DUT cgol_port`: The interface instance that bundles all control/data signals.
+
+Example module declaration:
+
+```systemverilog
+module cgol #(
+  parameter N = 3,
+  parameter M = 256
+)(
+  input logic clk,
+  input logic rst_n,
+  _if.DUT cgol_port
+);
+```
+
+### Interface Signals (through `cgol_port`)
 
 - **Inputs:**
-  - `clk`: Clock signal
-  - `rst_n`: Active-low reset
   - `row_idx [7:0]`: Row address for reading or writing a cell
   - `col_idx [7:0]`: Column address for reading or writing a cell
   - `din`: Data input to write (0 or 1)
   - `din_wr`: Write enable signal – when high, write `din` to the specified cell
   - `din_rd`: Read enable signal – when high, prepare the output of the specified cell
-  - `gstep`: Advance one generation – when high for one cycle, the grid updates to the next state
+  - `gstep`: Advance one generation – when high for one clock cycle, trigger a generation step
 
-- **Output:**
+- **Outputs:**
   - `dout`: Data output
-  - `done`: Indicates that the operation is complete (read/write/generation step, high for one cycle)
+  - `done`: Indicates that a generation step (`gstep`) has completed
 
-The grid size is determined by the parameters:
-- `parameter N`: Number of rows
-- `parameter M`: Number of columns
+---
 
-You may assume both `N` and `M` are no larger than 32.
+### Important Behavior Requirements
 
-**Note**: The grid is **not** circular. Cells on the edges have fewer than 8 neighbors, and out-of-bounds accesses should be treated as dead cells (0). 
-
-**The `done` signal should be asserted for one clock cycle after a read/write operation or a generation step.**
-
-**Any input signal will be high for one clock cycle. You should not assume that the input signals will be stable for more than one clock cycle.**
+- The grid size is determined by parameters `N` (rows) and `M` (columns).
+- Assume both `N` and `M` are no larger than 32.
+- The grid is **not circular**. Neighbor accesses that fall outside the grid must be treated as dead cells (0).
+- All control signals (`din_wr`, `din_rd`, `gstep`) are **one-cycle pulses**.
+- **Read/Write operations take exactly one clock cycle**.
+  - If `din_rd` is high at clock cycle *N*, then `dout` must be valid at *N+1*.
+  - If `din_wr` is high at clock cycle *N*, the new value must be stored during *N+1*.
+- **Generation steps (`gstep`) may take multiple cycles**. Assert `done` when the generation update is complete.
 
 ---
 
@@ -57,63 +82,72 @@ You may assume both `N` and `M` are no larger than 32.
 
 A complete SystemVerilog testbench is provided.
 
-You can run the testbench using the following command from **runspace** directory:
+You can run the testbench from the **runspace** directory.
 
-Load the environment:
+**First**, set up the environment (if working on the university machines):
 
 ```bash
 tsmc65
 ```
 
-Then, clone the repository:
+**Then**, clone the repository:
 
 ```bash
 git clone https://github.com/EyalYe/DDP25-HW6.git
 ```
-Then, change to the **DDP25-HW6** directory. Here you can open VSCode or any other editor of your choice.
+
+Change to the cloned project directory:
 
 ```bash
 cd DDP25-HW6
 code .
 ```
 
-change to the **runspace** directory and run the testbench:
+Enter the **runspace** directory and run the simulation:
 
 ```bash
 cd runspace
 xrun -f ../src/cgol.f
 ```
 
-if you wish to use the gui, you can run:
+To run with a GUI (waveform viewer):
 
 ```bash
 xrun -f ../src/cgol.f -gui -debug
 ```
 
+The testbench will automatically load a pattern, simulate 50 generations, and check correctness using a Python script.
+
 ---
 
 ## 💡 Tips
 
-- Handle out-of-bound neighbor accesses gracefully (e.g., treat them as dead).
-- Use a 2D array to represent the grid.
-- Use a temporary grid to compute the next generation before updating the main grid.
-- Think about which signal has priority when multiple signals are asserted at the same time (e.g., `din_wr` vs. `gstep`).
-- Does `dout` output is valid only when `din_rd` is asserted?
-- Make your life easier and run the testbench in **runspace** directory.
+- Handle **out-of-bounds** neighbor accesses by treating them as 0.
+- Use **two grids** internally — one for the current generation and a temporary one for computing the next.
+- Prioritize operations correctly if multiple control signals are active.
+- Remember: `dout` must only be valid after a **din_rd** command.
+- The **generation step (`gstep`)** can take many cycles — don't forget to properly control the `done` signal.
+- After a successful simulation, to see the pattern animation:
+
+```bash
+python3 ../src/scripts/animate_life.py --dir=./generations --delay=0.1
+```
 
 ---
 
 ## ✅ Submission
 
-- Submit a lab report in PDF format containing:
-  - A brief description of your design.
-  - Your implementation of the `des` module.
-  - The synthesis report.
-- Add the .tgz file that was generated during synthesis
+Submit the following:
+
+- A lab report (PDF) that includes:
+  - A brief description of your design and choices.
+  - Your full `cgol` module code.
+  - Your synthesis report.
+- Include the `.tgz` file generated during synthesis.
 
 ---
 
-## GOOD LUCK!
+# 🚀 GOOD LUCK!  
+Enjoy creating a living, breathing digital universe!
 
 ---
-
