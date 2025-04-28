@@ -1,1 +1,1 @@
-xrun -f ../src/cgol.f
+xrun -f ../src/cgol.f -sv
