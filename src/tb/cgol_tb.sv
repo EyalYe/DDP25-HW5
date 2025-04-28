@@ -183,10 +183,13 @@ module cgol_tb;
       d0.export_and_check(generation_count);
     end
 
-    $display("-------------------------------");
-    $display("Simulation finished successfully");
-    $display("-------------------------------");
-    $finish;
+    $display("\n\n\n--------------------------------");
+    $display("Simulation finished successfully.");
+    $display("All tests passed.");
+    $display("Want to see the result? run:");
+    $display("python3 ../src/scripts/animate_life.py --dir=./generations --delay=0.1");
+    $display("--------------------------------\n\n\n");
+
   end
 
   // Clock generator
