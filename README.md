@@ -110,13 +110,13 @@ Enter the **runspace** directory and run the simulation:
 
 ```bash
 cd runspace
-xrun -f ../src/cgol.f
+xrun -f ../src/cgol.f -sv
 ```
 
 To run with a GUI (waveform viewer):
 
 ```bash
-xrun -f ../src/cgol.f -gui -debug
+xrun -f ../src/cgol.f -sv -gui -debug
 ```
 
 The testbench will automatically load a pattern, simulate 50 generations, and check correctness using a Python script.
