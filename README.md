@@ -29,7 +29,7 @@ You must implement the `cgol` module, which simulates the Game of Life.
 
 The module can be found in `src/rtl/cgol.sv`.
 
-Your module must use the provided interface `_if`. Full explanation of how to use interfaces can be found here: [SystemVerilog Interfaces](docs/Quick Guide to SystemVerilog Interfaces.md).
+Your module must use the provided interface `_if`. Full explanation of how to use interfaces can be found here: [SystemVerilog Interfaces](./docs/Quick Guide to SystemVerilog Interfaces.md).
 
 - Explicit inputs:
   - `clk`: Clock signal
