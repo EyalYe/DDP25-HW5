@@ -6,7 +6,7 @@ In this assignment, you will implement the **core logic module** for **Conway’
 
 The grid is parameterized, and your module must support reading/writing individual cells, as well as advancing the simulation by one generation step.
 
-You will also learn how to use a **SystemVerilog interface** to group control and data signals, while keeping the clock and reset signals separate as explicit module ports.
+You will also learn how to use a **SystemVerilog interface** to group control and data signals, and how to test your design using a provided testbench.
 
 ---
 
@@ -27,7 +27,9 @@ All updates happen **simultaneously** at each generation step.
 
 You must implement the `cgol` module, which simulates the Game of Life.
 
-Your module must use the provided interface `_if`, and its port list must include:
+The module can be found in `src/rtl/cgol.sv`.
+
+Your module must use the provided interface `_if`. Full explanation of how to use interfaces can be found here: [SystemVerilog Interfaces](docs/Quick Guide to SystemVerilog Interfaces.md).
 
 - Explicit inputs:
   - `clk`: Clock signal
@@ -84,7 +86,7 @@ A complete SystemVerilog testbench is provided.
 
 You can run the testbench from the **runspace** directory.
 
-**First**, set up the environment (if working on the university machines):
+**First**, set up the environment.
 
 ```bash
 tsmc65
@@ -102,6 +104,7 @@ Change to the cloned project directory:
 cd DDP25-HW6
 code .
 ```
+The file `src/rtl/cgol.sv` contains the `cgol` module. You will implement your design in this file.
 
 Enter the **runspace** directory and run the simulation:
 
