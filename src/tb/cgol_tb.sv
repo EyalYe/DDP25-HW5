@@ -33,17 +33,15 @@ class driver #(
   endtask
 
   task wait_done();
-    @(negedge clk);
-    integer count = 0;
-    while (!vif.done)
-      begin
-        count++;
-        if (count > 1000) begin
-          $display("ERROR: Timeout waiting for done signal.");
-          $finish;
-        end
+    begin
+      @(negedge clk);
+      repeat (1000) begin
+        if (vif.done)
+          return;
         @(negedge clk);
       end
+      $fatal("ERROR: Timeout waiting for done signal."); // cleaner than $finish
+    end
   endtask
 
   task write_cell(input [7:0] row, input [7:0] col, input bit val);
