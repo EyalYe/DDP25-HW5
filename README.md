@@ -1,4 +1,4 @@
-# HW5 – Conway’s Game of Life (CGOL)
+# HW6 – Conway’s Game of Life (CGOL)
 
 ## 🧠 Overview
 
